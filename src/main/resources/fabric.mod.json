@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "zeroseek",
+  "version": "${version}",
+  "name": "ZeroSeek",
+  "description": "MMap-based async chunk I/O engine with hardened thread pools and TPS isolation.",
+  "authors": [
+    "SPA Team"
+  ],
+  "contact": {
+    "sources": "https://github.com/spa/zeroseek"
+  },
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.zeroseek.ZeroSeekMod"
+    ]
+  },
+  "mixins": [
+    "zeroseek.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
