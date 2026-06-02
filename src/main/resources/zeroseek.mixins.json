@@ -4,6 +4,7 @@
   "package": "com.zeroseek.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "RegionFileMixin"
   ],
   "injectors": {
     "defaultRequire": 1
