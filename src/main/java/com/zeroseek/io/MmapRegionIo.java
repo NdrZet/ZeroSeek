@@ -55,9 +55,17 @@ public class MmapRegionIo {
                        | ((segment.get(ValueLayout.JAVA_BYTE, dataOffset + 2) & 0xFF) << 8)
                        | (segment.get(ValueLayout.JAVA_BYTE, dataOffset + 3) & 0xFF);
 
-            if (length <= 0 || dataOffset + 5 + length - 1 > fileSize) return null;
+            if (length <= 1 || dataOffset + 5 + length - 1 > fileSize) {
+                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap chunk {} invalid length {} or out of bounds", pos, length);
+                return null;
+            }
 
             byte compressionType = segment.get(ValueLayout.JAVA_BYTE, dataOffset + 4);
+
+            if (compressionType < 1 || compressionType > 3) {
+                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap chunk {} unsupported compression type {}", pos, compressionType);
+                return null;
+            }
 
             byte[] compressed = new byte[length - 1];
             MemorySegment.copy(segment, dataOffset + 5, MemorySegment.ofArray(compressed), 0, length - 1);

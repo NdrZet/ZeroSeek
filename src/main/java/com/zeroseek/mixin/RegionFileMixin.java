@@ -31,35 +31,40 @@ public class RegionFileMixin {
     @Unique
     private boolean zeroseek$mmapEnabled = true;
 
+    /** Set to true while rebase is running to bypass delta interception. */
+    public static boolean REBASING = false;
+
     @Inject(method = "getChunkDataInputStream", at = @At("HEAD"), cancellable = true)
     private void zeroseek$read(ChunkPos pos, CallbackInfoReturnable<DataInputStream> cir) throws IOException {
-        if (!ZeroSeekMod.CONFIG.mmapEnabled) {
-            zeroseek$checkDeltaRead(pos, cir);
-            return;
-        }
-
-        if (this.zeroseek$mmapEnabled && this.zeroseek$mmapIo == null) {
-            try {
-                if (Files.exists(path) && Files.size(path) > 0) {
-                    this.zeroseek$mmapIo = new MmapRegionIo(path);
-                    if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap initialized for {}", path);
-                }
-            } catch (Exception e) {
-                ZeroSeekMod.LOGGER.error("Mmap init failed for {}", path, e);
-                this.zeroseek$mmapEnabled = false;
-            }
-        }
-
-        if (this.zeroseek$mmapIo != null) {
-            DataInputStream stream = this.zeroseek$mmapIo.read(pos);
-            if (stream != null) {
-                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Chunk {} served from MMAP", pos);
-                cir.setReturnValue(stream);
-                return;
-            }
-        }
-
+        // 1. Try delta first — it takes priority over base .mca for modified chunks
         zeroseek$checkDeltaRead(pos, cir);
+        if (cir.isCancelled()) return;
+
+        // 2. Fallback to MMap for base layer
+        if (ZeroSeekMod.CONFIG.mmapEnabled) {
+            if (this.zeroseek$mmapEnabled && this.zeroseek$mmapIo == null) {
+                try {
+                    if (Files.exists(path) && Files.size(path) > 0) {
+                        this.zeroseek$mmapIo = new MmapRegionIo(path);
+                        if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap initialized for {}", path);
+                    }
+                } catch (Exception e) {
+                    ZeroSeekMod.LOGGER.error("Mmap init failed for {}", path, e);
+                    this.zeroseek$mmapEnabled = false;
+                }
+            }
+
+            if (this.zeroseek$mmapIo != null) {
+                DataInputStream stream = this.zeroseek$mmapIo.read(pos);
+                if (stream != null) {
+                    if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Chunk {} served from MMAP", pos);
+                    cir.setReturnValue(stream);
+                    return;
+                }
+            }
+        }
+
+        if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Chunk {} falling back to VANILLA", pos);
     }
 
     @Unique
@@ -71,15 +76,14 @@ public class RegionFileMixin {
             if (stream != null) {
                 if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Chunk {} served from DELTA", pos);
                 cir.setReturnValue(stream);
-                return;
             }
         }
-        if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Chunk {} falling back to VANILLA", pos);
     }
 
     @Inject(method = "write", at = @At("HEAD"), cancellable = true)
     private void zeroseek$write(ChunkPos pos, ByteBuffer buffer, CallbackInfo ci) {
         if (!ZeroSeekMod.CONFIG.deltaLayerEnabled) return;
+        if (REBASING) return; // let rebase write directly to .mca
 
         try {
             ExternalDeltaManager.writeChunk(pos, buffer);

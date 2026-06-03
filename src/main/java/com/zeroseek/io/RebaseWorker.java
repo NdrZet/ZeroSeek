@@ -2,6 +2,7 @@ package com.zeroseek.io;
 
 import com.zeroseek.ZeroSeekMod;
 import com.zeroseek.mixin.RegionFileInvoker;
+import com.zeroseek.mixin.RegionFileMixin;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
@@ -66,8 +67,10 @@ public class RebaseWorker implements Runnable {
 
             RegionFile baseFile = new RegionFile(info, baseFilePath, baseFilePath.getParent(), false);
             try {
+                RegionFileMixin.REBASING = true;
                 ((RegionFileInvoker) baseFile).zeroseek$invokeWrite(pos, ByteBuffer.wrap(data));
             } finally {
+                RegionFileMixin.REBASING = false;
                 baseFile.close();
             }
 
