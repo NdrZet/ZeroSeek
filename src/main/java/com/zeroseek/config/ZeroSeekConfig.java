@@ -13,7 +13,10 @@ public class ZeroSeekConfig {
     private static final Path PATH = Path.of("config", "zeroseek.json");
 
     public boolean mmapEnabled = true;
+    public boolean deltaLayerEnabled = true;
     public long maxMappedBytes = 2147483648L;
+    public int rebaseIntervalSeconds = 300;
+    public boolean debugMmap = false;
 
     public static ZeroSeekConfig load() {
         if (Files.exists(PATH)) {

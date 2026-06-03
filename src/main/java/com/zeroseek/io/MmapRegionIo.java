@@ -31,6 +31,7 @@ public class MmapRegionIo {
     }
 
     public DataInputStream read(ChunkPos pos) {
+        long start = System.nanoTime();
         try {
             int localX = pos.x & 31;
             int localZ = pos.z & 31;
@@ -67,11 +68,13 @@ public class MmapRegionIo {
                 case 2 -> input = new InflaterInputStream(input);
                 case 3 -> { /* uncompressed */ }
                 default -> {
-                    ZeroSeekMod.LOGGER.debug("Unsupported compression type {} in chunk {}", compressionType, pos);
+                    if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Unsupported compression type {} in chunk {}", compressionType, pos);
                     return null;
                 }
             }
 
+            long elapsedUs = (System.nanoTime() - start) / 1000;
+            if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap read chunk {} took {} us", pos, elapsedUs);
             return new DataInputStream(input);
         } catch (IOException e) {
             ZeroSeekMod.LOGGER.error("Mmap read failed for chunk {}", pos, e);
