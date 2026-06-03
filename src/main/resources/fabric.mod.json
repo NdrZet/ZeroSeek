@@ -17,6 +17,7 @@
       "com.zeroseek.ZeroSeekMod"
     ]
   },
+  "accessWidener": "zeroseek.accesswidener",
   "mixins": [
     "zeroseek.mixins.json"
   ],

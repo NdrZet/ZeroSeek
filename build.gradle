@@ -15,6 +15,7 @@ repositories {
 }
 
 loom {
+	accessWidenerPath = file("src/main/resources/zeroseek.accesswidener")
 	mods {
 		"zeroseek" {
 			sourceSet sourceSets.main

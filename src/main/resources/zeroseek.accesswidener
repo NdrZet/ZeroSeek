@@ -1,0 +1,3 @@
+accessWidener v2 named
+
+accessible method net/minecraft/world/level/chunk/storage/RegionFile write (Lnet/minecraft/world/level/ChunkPos;Ljava/nio/ByteBuffer;)V
