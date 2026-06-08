@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "RegionFileMixin",
-    "RegionFileInvoker"
+    "RegionFileInvoker",
+    "ChunkMapMixin",
+    "ChunkMapInvoker"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -18,6 +18,16 @@ public class ZeroSeekConfig {
     public int rebaseIntervalSeconds = 300;
     public boolean debugMmap = false;
 
+    // Async Workers (Phase 3)
+    public boolean asyncWorkersEnabled = true;
+    public int chunkParserThreads = 8;
+    public int chunkParserMaxQueue = 200;
+    public int chunkLoaderThreads = 4;
+    public int chunkLoaderMaxQueue = 50;
+    public boolean chunkPrefetchEnabled = true;
+    public int chunkPrefetchRadius = 2;
+    public int chunkPrefetchTicksAhead = 40;
+
     public static ZeroSeekConfig load() {
         if (Files.exists(PATH)) {
             try (var reader = Files.newBufferedReader(PATH)) {

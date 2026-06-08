@@ -1,8 +1,12 @@
 package com.zeroseek;
 
+import com.zeroseek.async.AsyncChunkService;
+import com.zeroseek.chunk.ChunkPrefetcher;
 import com.zeroseek.config.ZeroSeekConfig;
 import com.zeroseek.io.RebaseWorker;
 import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +19,7 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static ZeroSeekConfig CONFIG;
+    public static AsyncChunkService ASYNC_SERVICE;
     private static ScheduledExecutorService rebaseScheduler;
 
     @Override
@@ -43,11 +48,28 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
             );
             LOGGER.info("Rebase scheduler started");
         }
+
+        if (CONFIG.asyncWorkersEnabled) {
+            ASYNC_SERVICE = new AsyncChunkService(CONFIG);
+
+            ServerTickEvents.END_SERVER_TICK.register((MinecraftServer server) -> {
+                if (ASYNC_SERVICE == null) return;
+                for (var level : server.getAllLevels()) {
+                    ChunkPrefetcher.onTick(level);
+                }
+            });
+
+            LOGGER.info("Async workers started (parser threads={}, loader threads={})",
+                    CONFIG.chunkParserThreads, CONFIG.chunkLoaderThreads);
+        }
     }
 
     public static void shutdown() {
         if (rebaseScheduler != null) {
             rebaseScheduler.shutdown();
+        }
+        if (ASYNC_SERVICE != null) {
+            ASYNC_SERVICE.shutdown();
         }
     }
 }
