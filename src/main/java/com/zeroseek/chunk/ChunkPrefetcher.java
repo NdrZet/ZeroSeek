@@ -9,8 +9,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Conservative predictive chunk prefetcher based on player movement vectors.
@@ -18,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and a hard per-tick cap to avoid overwhelming the chunk loader.
  */
 public class ChunkPrefetcher {
-    private static final AtomicInteger tickCounter = new AtomicInteger(0);
+    private static final Map<ServerLevel, Integer> tickCounters = new HashMap<>();
     private static final int DEFAULT_TICK_INTERVAL = 5;
     private static final double DEFAULT_SPEED_THRESHOLD = 0.15;
     private static final int DEFAULT_MAX_PER_TICK = 16;
@@ -30,9 +31,11 @@ public class ChunkPrefetcher {
         if (!ZeroSeekMod.CONFIG.chunkPrefetchEnabled) return;
         if (ZeroSeekMod.ASYNC_SERVICE == null) return;
 
-        int tick = tickCounter.incrementAndGet();
         int interval = Math.max(1, ZeroSeekMod.CONFIG.chunkPrefetchTickInterval);
+        int tick = tickCounters.getOrDefault(level, 0) + 1;
+        tickCounters.put(level, tick);
         if (tick % interval != 0) return;
+        tickCounters.put(level, 0);
 
         AsyncChunkService service = ZeroSeekMod.ASYNC_SERVICE;
         var chunkMap = level.getChunkSource().chunkMap;

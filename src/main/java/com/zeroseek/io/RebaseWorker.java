@@ -53,7 +53,7 @@ public class RebaseWorker implements Runnable {
                 dimension = ResourceKey.create(Registries.DIMENSION, Identifier.withDefaultNamespace("the_end"));
             }
 
-            RegionStorageInfo info = new RegionStorageInfo("minecraft", dimension, "region");
+            RegionStorageInfo info = new RegionStorageInfo("minecraft", dimension, "chunk");
             Path baseFilePath = regionFolder.resolveSibling("region").resolve("r." + pos.getRegionX() + "." + pos.getRegionZ() + ".mca");
 
             if (!Files.exists(baseFilePath)) {

@@ -87,6 +87,8 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
             ServerLifecycleEvents.SERVER_STARTED.register(AdaptiveSimulation::initialize);
             LOGGER.info("TPS governor initialized");
         }
+
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> shutdown());
     }
 
     public static void shutdown() {

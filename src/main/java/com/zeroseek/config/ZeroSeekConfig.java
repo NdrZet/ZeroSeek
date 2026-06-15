@@ -54,9 +54,13 @@ public class ZeroSeekConfig {
     public static ZeroSeekConfig load() {
         if (Files.exists(PATH)) {
             try (var reader = Files.newBufferedReader(PATH)) {
-                return GSON.fromJson(reader, ZeroSeekConfig.class);
-            } catch (IOException e) {
-                ZeroSeekMod.LOGGER.error("Failed to load config", e);
+                ZeroSeekConfig config = GSON.fromJson(reader, ZeroSeekConfig.class);
+                if (config != null) {
+                    return config;
+                }
+                ZeroSeekMod.LOGGER.error("Loaded config is null, using defaults");
+            } catch (Exception e) {
+                ZeroSeekMod.LOGGER.error("Failed to load config, using defaults", e);
             }
         }
         ZeroSeekConfig defaults = new ZeroSeekConfig();

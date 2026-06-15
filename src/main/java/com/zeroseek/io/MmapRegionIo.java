@@ -24,13 +24,17 @@ public class MmapRegionIo {
 
     public MmapRegionIo(Path path) throws IOException {
         this.fileSize = Files.size(path);
-        this.arena = Arena.ofShared();
+        Arena arena = Arena.ofShared();
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
             this.segment = channel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize, arena);
             if (MadviseHelper.supported()) {
                 MadviseHelper.willNeed(this.segment);
                 if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap madvise WILLNEED for {}", path);
             }
+            this.arena = arena;
+        } catch (Throwable t) {
+            arena.close();
+            throw t;
         }
     }
 
