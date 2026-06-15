@@ -24,12 +24,14 @@ public class AsyncChunkService {
         this.parserPool = new HardenedWorkerPool(
                 "zeroseek-parser",
                 config.chunkParserThreads,
-                config.chunkParserMaxQueue
+                config.chunkParserMaxQueue,
+                config.cpuAffinityEnabled ? config.cpuAffinityCores : null
         );
         this.loaderPool = new HardenedWorkerPool(
                 "zeroseek-loader",
                 config.chunkLoaderThreads,
-                config.chunkLoaderMaxQueue
+                config.chunkLoaderMaxQueue,
+                config.cpuAffinityEnabled ? config.cpuAffinityCores : null
         );
         this.loadingCache = new ConcurrentHashMap<>();
 

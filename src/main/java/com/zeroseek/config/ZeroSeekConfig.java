@@ -31,6 +31,26 @@ public class ZeroSeekConfig {
     public double chunkPrefetchSpeedThreshold = 0.15;
     public int chunkPrefetchMaxPerTick = 16;
 
+    // CPU Affinity (Phase 4)
+    public boolean cpuAffinityEnabled = true;
+    public int[] cpuAffinityCores = {2, 3, 4, 5, 6, 7};
+
+    // TPS Governor (Phase 5)
+    public boolean tpsGovernorEnabled = true;
+    public boolean adaptiveSimulationEnabled = true;
+    public int simDistNormal = -1;
+    public int simDistStress = 8;
+    public int simDistCritical = 6;
+    public double tpsStressThreshold = 15.0;
+    public double tpsCriticalThreshold = 10.0;
+    public boolean entityHibernationEnabled = true;
+    public long hibernateMinAgeMs = 5000;
+    public long hibernateStressAgeMs = 30000;
+    public double stressDropMoveChance = 0.25;
+    public double criticalDropMoveChance = 0.75;
+    public double stressSkipAiChance = 0.25;
+    public double criticalSkipAiChance = 0.75;
+
     public static ZeroSeekConfig load() {
         if (Files.exists(PATH)) {
             try (var reader = Files.newBufferedReader(PATH)) {

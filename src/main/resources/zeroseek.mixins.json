@@ -7,7 +7,14 @@
     "RegionFileMixin",
     "RegionFileInvoker",
     "ChunkMapMixin",
-    "ChunkMapInvoker"
+    "ChunkMapInvoker",
+    "MinecraftServerMixin",
+    "ServerChunkCacheMixin",
+    "DistanceManagerMixin",
+    "ServerLevelMixin",
+    "LevelChunkMixin",
+    "ServerGamePacketListenerImplMixin",
+    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

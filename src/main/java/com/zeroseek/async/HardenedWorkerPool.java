@@ -1,6 +1,7 @@
 package com.zeroseek.async;
 
 import com.zeroseek.ZeroSeekMod;
+import com.zeroseek.async.affinity.PlatformAffinity;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
@@ -19,27 +20,23 @@ import java.util.concurrent.atomic.LongAdder;
 public class HardenedWorkerPool {
     private final ThreadPoolExecutor executor;
     private final String name;
+    private final int[] affinityCores;
     private final LongAdder rejectedTasks = new LongAdder();
 
     public HardenedWorkerPool(String name, int threads, int maxQueueSize) {
+        this(name, threads, maxQueueSize, null);
+    }
+
+    public HardenedWorkerPool(String name, int threads, int maxQueueSize, int[] affinityCores) {
         this.name = name;
+        this.affinityCores = affinityCores;
         this.executor = new ThreadPoolExecutor(
                 threads,
                 threads,
                 0L,
                 TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(maxQueueSize),
-                new ThreadFactory() {
-                    private final AtomicInteger counter = new AtomicInteger(0);
-
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        Thread t = new Thread(r, name + "-" + counter.incrementAndGet());
-                        t.setDaemon(false);
-                        t.setPriority(Thread.MAX_PRIORITY);
-                        return t;
-                    }
-                },
+                new AffinityThreadFactory(name, affinityCores),
                 createRejectHandler(name)
         );
         this.executor.prestartAllCoreThreads();
@@ -48,11 +45,12 @@ public class HardenedWorkerPool {
     private static RejectedExecutionHandler createRejectHandler(String name) {
         return (r, pool) -> {
             if (!pool.isShutdown()) {
-                Runnable oldest = pool.getQueue().poll();
-                if (oldest != null) {
+                pool.getQueue().poll();
+                try {
                     pool.execute(r);
+                } catch (Exception e) {
+                    ZeroSeekMod.LOGGER.warn("{} failed to re-submit task after discarding oldest", name, e);
                 }
-                // Log only occasionally to avoid spam
                 if (pool.getCompletedTaskCount() % 1000L == 0L) {
                     ZeroSeekMod.LOGGER.warn(
                             "{} queue overflow (size={}). Discarded oldest task.",
@@ -97,5 +95,54 @@ public class HardenedWorkerPool {
 
     public String getName() {
         return name;
+    }
+
+    public int[] getAffinityCores() {
+        return affinityCores;
+    }
+
+    /**
+     * Thread that binds itself to configured CPU cores on first run.
+     */
+    private static final class AffinityThread extends Thread {
+        private final int[] cores;
+        private volatile boolean bound;
+
+        AffinityThread(Runnable r, String name, int[] cores) {
+            super(r, name);
+            this.cores = cores;
+            setDaemon(false);
+            setPriority(Thread.MAX_PRIORITY);
+        }
+
+        @Override
+        public void run() {
+            if (!bound && cores != null && cores.length > 0) {
+                bound = PlatformAffinity.bindCurrentThread(cores);
+                if (ZeroSeekMod.CONFIG != null && ZeroSeekMod.CONFIG.debugMmap) {
+                    ZeroSeekMod.LOGGER.debug(
+                            "Thread {} affinity bound to {}: {}",
+                            getName(), cores, bound
+                    );
+                }
+            }
+            super.run();
+        }
+    }
+
+    private static final class AffinityThreadFactory implements ThreadFactory {
+        private final String name;
+        private final int[] cores;
+        private final AtomicInteger counter = new AtomicInteger(0);
+
+        AffinityThreadFactory(String name, int[] cores) {
+            this.name = name;
+            this.cores = cores;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            return new AffinityThread(r, name + "-" + counter.incrementAndGet(), cores);
+        }
     }
 }

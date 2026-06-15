@@ -27,6 +27,10 @@ public class MmapRegionIo {
         this.arena = Arena.ofShared();
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
             this.segment = channel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize, arena);
+            if (MadviseHelper.supported()) {
+                MadviseHelper.willNeed(this.segment);
+                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap madvise WILLNEED for {}", path);
+            }
         }
     }
 
@@ -91,6 +95,10 @@ public class MmapRegionIo {
     }
 
     public void close() {
+        if (MadviseHelper.supported() && segment != null) {
+            MadviseHelper.dontNeed(this.segment);
+            if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap madvise DONTNEED for region");
+        }
         arena.close();
     }
 }
