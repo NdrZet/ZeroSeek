@@ -6,6 +6,7 @@ import com.zeroseek.io.MmapRegionIo;
 import com.zeroseek.io.RebaseState;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
+import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,6 +31,14 @@ public class RegionFileMixin {
     @Shadow
     private RegionFileVersion version;
 
+    @Shadow
+    private RegionStorageInfo info;
+
+    @Unique
+    private boolean zeroseek$isChunkStorage() {
+        return this.info != null && "chunk".equals(this.info.type());
+    }
+
     @Unique
     private MmapRegionIo zeroseek$mmapIo;
 
@@ -41,6 +50,8 @@ public class RegionFileMixin {
 
     @Inject(method = "getChunkDataInputStream", at = @At("HEAD"), cancellable = true)
     private void zeroseek$read(ChunkPos pos, CallbackInfoReturnable<DataInputStream> cir) throws IOException {
+        if (!zeroseek$isChunkStorage()) return;
+
         // 1. Try delta first — it takes priority over base .mca for modified chunks
         zeroseek$checkDeltaRead(pos, cir);
         if (cir.isCancelled()) return;
@@ -87,6 +98,7 @@ public class RegionFileMixin {
 
     @Inject(method = "write", at = @At("HEAD"), cancellable = true)
     private void zeroseek$write(ChunkPos pos, ByteBuffer buffer, CallbackInfo ci) {
+        if (!zeroseek$isChunkStorage()) return;
         if (!ZeroSeekMod.CONFIG.deltaLayerEnabled) return;
         if (RebaseState.isRebasing()) return; // let rebase write directly to .mca
 
@@ -103,6 +115,7 @@ public class RegionFileMixin {
 
     @Inject(method = "clear", at = @At("HEAD"), cancellable = true)
     private void zeroseek$clear(ChunkPos pos, CallbackInfo ci) {
+        if (!zeroseek$isChunkStorage()) return;
         if (!ZeroSeekMod.CONFIG.deltaLayerEnabled) return;
 
         try {
@@ -115,6 +128,7 @@ public class RegionFileMixin {
 
     @Inject(method = "close", at = @At("RETURN"))
     private void zeroseek$close(CallbackInfo ci) {
+        if (!zeroseek$isChunkStorage()) return;
         if (this.zeroseek$mmapIo != null) {
             this.zeroseek$mmapIo.close();
             this.zeroseek$mmapIo = null;
