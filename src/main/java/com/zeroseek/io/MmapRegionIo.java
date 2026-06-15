@@ -2,6 +2,7 @@ package com.zeroseek.io;
 
 import com.zeroseek.ZeroSeekMod;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.storage.RegionFileVersion;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -14,8 +15,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
 public class MmapRegionIo {
     private final Arena arena;
@@ -63,31 +62,23 @@ public class MmapRegionIo {
                        | ((segment.get(ValueLayout.JAVA_BYTE, dataOffset + 2) & 0xFF) << 8)
                        | (segment.get(ValueLayout.JAVA_BYTE, dataOffset + 3) & 0xFF);
 
-            if (length <= 1 || dataOffset + 5 + length - 1 > fileSize) {
+            if (length <= 1 || dataOffset + 4 + length > fileSize) {
                 if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap chunk {} invalid length {} or out of bounds", pos, length);
                 return null;
             }
 
             byte compressionType = segment.get(ValueLayout.JAVA_BYTE, dataOffset + 4);
 
-            if (compressionType < 1 || compressionType > 3) {
-                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap chunk {} unsupported compression type {}", pos, compressionType);
-                return null;
-            }
-
             byte[] compressed = new byte[length - 1];
             MemorySegment.copy(segment, dataOffset + 5, MemorySegment.ofArray(compressed), 0, length - 1);
 
-            InputStream input = new ByteArrayInputStream(compressed);
-            switch (compressionType) {
-                case 1 -> input = new GZIPInputStream(input);
-                case 2 -> input = new InflaterInputStream(input);
-                case 3 -> { /* uncompressed */ }
-                default -> {
-                    if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Unsupported compression type {} in chunk {}", compressionType, pos);
-                    return null;
-                }
+            RegionFileVersion version = RegionFileVersion.fromId(compressionType);
+            if (version == null) {
+                ZeroSeekMod.LOGGER.error("Unsupported compression type {} in chunk {}", compressionType, pos);
+                return null;
             }
+
+            InputStream input = version.wrap(new ByteArrayInputStream(compressed));
 
             long elapsedUs = (System.nanoTime() - start) / 1000;
             if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap read chunk {} took {} us", pos, elapsedUs);

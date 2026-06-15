@@ -29,9 +29,6 @@ public class RegionFileMixin {
     private Path path;
 
     @Shadow
-    private RegionFileVersion version;
-
-    @Shadow
     private RegionStorageInfo info;
 
     @Unique
@@ -59,14 +56,18 @@ public class RegionFileMixin {
         // 2. Fallback to MMap for base layer
         if (ZeroSeekMod.CONFIG.mmapEnabled) {
             if (this.zeroseek$mmapEnabled && this.zeroseek$mmapIo == null) {
-                try {
-                    if (Files.exists(path) && Files.size(path) > 0) {
-                        this.zeroseek$mmapIo = new MmapRegionIo(path);
-                        if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap initialized for {}", path);
+                synchronized (this) {
+                    if (this.zeroseek$mmapIo == null) {
+                        try {
+                            if (Files.exists(path) && Files.size(path) > 0) {
+                                this.zeroseek$mmapIo = new MmapRegionIo(path);
+                                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap initialized for {}", path);
+                            }
+                        } catch (Exception e) {
+                            ZeroSeekMod.LOGGER.error("Mmap init failed for {}", path, e);
+                            this.zeroseek$mmapEnabled = false;
+                        }
                     }
-                } catch (Exception e) {
-                    ZeroSeekMod.LOGGER.error("Mmap init failed for {}", path, e);
-                    this.zeroseek$mmapEnabled = false;
                 }
             }
 

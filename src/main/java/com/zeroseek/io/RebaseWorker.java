@@ -43,22 +43,18 @@ public class RebaseWorker implements Runnable {
 
             Path regionFolder = deltaFile.getParent();
             Path deltaBaseDir = ExternalDeltaManager.getChunkPath(pos).getParent().getParent();
-            String relative = deltaBaseDir.relativize(regionFolder).toString();
+            Path relative = deltaBaseDir.relativize(regionFolder);
 
             ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, Identifier.withDefaultNamespace("overworld"));
-
-            if (regionFolder.toString().contains("DIM-1")) {
+            String dimKey = relative.getNameCount() > 1 ? relative.getName(0).toString() : "";
+            if ("DIM-1".equals(dimKey)) {
                 dimension = ResourceKey.create(Registries.DIMENSION, Identifier.withDefaultNamespace("the_nether"));
-            } else if (regionFolder.toString().contains("DIM1")) {
+            } else if ("DIM1".equals(dimKey)) {
                 dimension = ResourceKey.create(Registries.DIMENSION, Identifier.withDefaultNamespace("the_end"));
             }
 
             RegionStorageInfo info = new RegionStorageInfo("minecraft", dimension, "chunk");
             Path baseFilePath = regionFolder.resolveSibling("region").resolve("r." + pos.getRegionX() + "." + pos.getRegionZ() + ".mca");
-
-            if (!Files.exists(baseFilePath)) {
-                baseFilePath = regionFolder.getParent().resolve("region").resolve("r." + pos.getRegionX() + "." + pos.getRegionZ() + ".mca");
-            }
 
             if (!Files.exists(baseFilePath.getParent())) {
                 Files.createDirectories(baseFilePath.getParent());

@@ -2,6 +2,7 @@ package com.zeroseek.io;
 
 import com.zeroseek.ZeroSeekMod;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.storage.RegionFileVersion;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -13,8 +14,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
 public class ExternalDeltaManager {
     private static final Path BASE_DELTA_DIR = Path.of("world", "region_delta");
@@ -24,7 +23,16 @@ public class ExternalDeltaManager {
         Files.createDirectories(chunkFile.getParent());
         byte[] data = new byte[buffer.remaining()];
         buffer.duplicate().get(data);
-        Files.write(chunkFile, data);
+
+        // Atomic write: temp file + move to avoid partial reads during crash
+        Path temp = chunkFile.resolveSibling(chunkFile.getFileName() + ".tmp");
+        Files.write(temp, data);
+        try {
+            Files.move(temp, chunkFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+        } catch (Exception e) {
+            ZeroSeekMod.LOGGER.warn("Atomic delta write failed for {}, falling back to non-atomic", pos, e);
+            Files.move(temp, chunkFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     public static DataInputStream readChunk(ChunkPos pos) throws IOException {
@@ -55,17 +63,13 @@ public class ExternalDeltaManager {
         byte[] compressed = new byte[payloadLen];
         System.arraycopy(data, 5, compressed, 0, payloadLen);
 
-        InputStream input = new ByteArrayInputStream(compressed);
-        switch (compressionType) {
-            case 1 -> input = new GZIPInputStream(input);
-            case 2 -> input = new InflaterInputStream(input);
-            case 3 -> { /* uncompressed */ }
-            default -> {
-                ZeroSeekMod.LOGGER.error("Unsupported compression type {} in delta chunk {} (hex header: {})", compressionType, pos,
-                    String.format("%02X %02X %02X %02X %02X", data[0], data[1], data[2], data[3], data[4]));
-                return null;
-            }
+        RegionFileVersion version = RegionFileVersion.fromId(compressionType);
+        if (version == null) {
+            ZeroSeekMod.LOGGER.error("Unsupported compression type {} in delta chunk {} (hex header: {})", compressionType, pos,
+                String.format("%02X %02X %02X %02X %02X", data[0], data[1], data[2], data[3], data[4]));
+            return null;
         }
+        InputStream input = version.wrap(new ByteArrayInputStream(compressed));
         return new DataInputStream(input);
     }
 
@@ -106,7 +110,4 @@ public class ExternalDeltaManager {
         return new ChunkPos(x, z);
     }
 
-    public static Path getBasePathFromChunk(ChunkPos pos, Path baseFolder) {
-        return baseFolder.resolve("r." + pos.getRegionX() + "." + pos.getRegionZ() + ".mca");
-    }
 }
