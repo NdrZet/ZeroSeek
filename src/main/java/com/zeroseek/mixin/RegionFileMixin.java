@@ -3,6 +3,7 @@ package com.zeroseek.mixin;
 import com.zeroseek.ZeroSeekMod;
 import com.zeroseek.io.ExternalDeltaManager;
 import com.zeroseek.io.MmapRegionIo;
+import com.zeroseek.io.RebaseState;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +33,7 @@ public class RegionFileMixin {
     private boolean zeroseek$mmapEnabled = true;
 
     /** Set to true while rebase is running to bypass delta interception. */
-    public static boolean REBASING = false;
+    // Rebase state moved to RebaseState class to avoid Mixin static visibility restrictions.
 
     @Inject(method = "getChunkDataInputStream", at = @At("HEAD"), cancellable = true)
     private void zeroseek$read(ChunkPos pos, CallbackInfoReturnable<DataInputStream> cir) throws IOException {
@@ -83,7 +84,7 @@ public class RegionFileMixin {
     @Inject(method = "write", at = @At("HEAD"), cancellable = true)
     private void zeroseek$write(ChunkPos pos, ByteBuffer buffer, CallbackInfo ci) {
         if (!ZeroSeekMod.CONFIG.deltaLayerEnabled) return;
-        if (REBASING) return; // let rebase write directly to .mca
+        if (RebaseState.isRebasing()) return; // let rebase write directly to .mca
 
         try {
             ExternalDeltaManager.writeChunk(pos, buffer);

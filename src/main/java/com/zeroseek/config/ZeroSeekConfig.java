@@ -25,8 +25,11 @@ public class ZeroSeekConfig {
     public int chunkLoaderThreads = 4;
     public int chunkLoaderMaxQueue = 50;
     public boolean chunkPrefetchEnabled = true;
-    public int chunkPrefetchRadius = 2;
+    public int chunkPrefetchRadius = 1;
     public int chunkPrefetchTicksAhead = 40;
+    public int chunkPrefetchTickInterval = 5;
+    public double chunkPrefetchSpeedThreshold = 0.15;
+    public int chunkPrefetchMaxPerTick = 16;
 
     public static ZeroSeekConfig load() {
         if (Files.exists(PATH)) {
