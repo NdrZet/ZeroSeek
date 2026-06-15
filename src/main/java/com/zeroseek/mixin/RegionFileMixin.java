@@ -9,6 +9,7 @@ import net.minecraft.world.level.chunk.storage.RegionFile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import net.minecraft.world.level.chunk.storage.RegionFileVersion;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,6 +26,9 @@ public class RegionFileMixin {
 
     @Shadow
     private Path path;
+
+    @Shadow
+    private RegionFileVersion version;
 
     @Unique
     private MmapRegionIo zeroseek$mmapIo;
@@ -87,6 +91,8 @@ public class RegionFileMixin {
         if (RebaseState.isRebasing()) return; // let rebase write directly to .mca
 
         try {
+            // Vanilla RegionFile$ChunkBuffer already prepends [length(4)][type(1)] to the payload.
+            // We store the buffer as-is so ExternalDeltaManager can read it back directly.
             ExternalDeltaManager.writeChunk(pos, buffer);
             if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Chunk {} written to DELTA", pos);
             ci.cancel();

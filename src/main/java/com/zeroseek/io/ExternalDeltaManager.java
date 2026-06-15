@@ -36,8 +36,8 @@ public class ExternalDeltaManager {
             return null;
         }
 
-        // ChunkBuffer writes [4 bytes length][1 byte compressionType][compressedData]
-        // Skip the 4-byte length prefix
+        // RegionFile$ChunkBuffer format: [4 bytes length][1 byte compressionType][compressedPayload]
+        // The 4-byte length is the size of (type + payload); skip it and read the payload.
         byte compressionType = data[4];
         int payloadLen = data.length - 5;
         if (payloadLen <= 0) {
