@@ -28,6 +28,9 @@ public final class PlatformAffinity {
     }
 
     public static boolean bindCurrentThread(int... cores) {
+        if (ZeroSeekMod.CONFIG == null || !ZeroSeekMod.CONFIG.cpuAffinityEnabled) {
+            return false;
+        }
         return PROVIDER.bindCurrentThread(cores);
     }
 

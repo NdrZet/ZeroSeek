@@ -15,7 +15,7 @@ import java.lang.invoke.MethodHandle;
  * Windows: not implemented (PrefetchVirtualMemory can be added later).
  */
 public final class MadviseHelper {
-    private static final int POSIX_MADV_WILLNEED = 1;
+    private static final int POSIX_MADV_WILLNEED = 3;
     private static final int POSIX_MADV_DONTNEED = 4;
 
     private static final MethodHandle POSIX_MADVISE;

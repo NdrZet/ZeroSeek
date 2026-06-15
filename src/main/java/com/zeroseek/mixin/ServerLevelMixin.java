@@ -17,4 +17,9 @@ public class ServerLevelMixin {
             ci.cancel();
         }
     }
+
+    @Inject(method = "unload", at = @At("HEAD"))
+    private void zeroseek$onUnload(LevelChunk chunk, CallbackInfo ci) {
+        EntityHibernation.unload(chunk);
+    }
 }

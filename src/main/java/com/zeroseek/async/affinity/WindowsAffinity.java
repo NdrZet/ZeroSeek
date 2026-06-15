@@ -16,17 +16,20 @@ import java.lang.invoke.MethodHandle;
  * - SetThreadAffinityMask(HANDLE, DWORD_PTR)
  */
 public class WindowsAffinity implements AffinityProvider {
+    private final Arena arena;
     private final MethodHandle getCurrentThread;
     private final MethodHandle setThreadAffinityMask;
     private final boolean supported;
 
     public WindowsAffinity() {
+        Arena a = null;
         MethodHandle gct = null;
         MethodHandle stam = null;
         boolean ok = false;
-        try (Arena arena = Arena.ofConfined()) {
+        try {
+            a = Arena.ofShared();
             Linker linker = Linker.nativeLinker();
-            SymbolLookup kernel32 = SymbolLookup.libraryLookup("kernel32", arena);
+            SymbolLookup kernel32 = SymbolLookup.libraryLookup("kernel32", a);
 
             gct = linker.downcallHandle(
                     kernel32.find("GetCurrentThread").orElseThrow(),
@@ -42,7 +45,11 @@ public class WindowsAffinity implements AffinityProvider {
             ok = true;
         } catch (Throwable t) {
             ZeroSeekMod.LOGGER.warn("Windows affinity native symbols not available", t);
+            if (a != null) {
+                try { a.close(); } catch (Exception ignored) {}
+            }
         }
+        this.arena = a;
         this.getCurrentThread = gct;
         this.setThreadAffinityMask = stam;
         this.supported = ok;

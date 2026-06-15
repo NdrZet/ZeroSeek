@@ -37,14 +37,15 @@ public class HardenedWorkerPool {
                 TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(maxQueueSize),
                 new AffinityThreadFactory(name, affinityCores),
-                createRejectHandler(name)
+                createRejectHandler(name, rejectedTasks)
         );
         this.executor.prestartAllCoreThreads();
     }
 
-    private static RejectedExecutionHandler createRejectHandler(String name) {
+    private static RejectedExecutionHandler createRejectHandler(String name, LongAdder rejectedTasks) {
         return (r, pool) -> {
             if (!pool.isShutdown()) {
+                rejectedTasks.increment();
                 pool.getQueue().poll();
                 try {
                     pool.execute(r);

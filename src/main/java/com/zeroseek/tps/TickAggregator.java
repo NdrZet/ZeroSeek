@@ -11,7 +11,7 @@ public class TickAggregator {
             return;
         }
         if (ZeroSeekMod.CONFIG.debugMmap || state != TPSState.NORMAL) {
-            ZeroSeekMod.LOGGER.info("[ZeroSeek TPS] TPS={:.1f}, state={}", tps, state);
+            ZeroSeekMod.LOGGER.info("[ZeroSeek TPS] TPS={}, state={}", String.format("%.1f", tps), state);
         }
     }
 }

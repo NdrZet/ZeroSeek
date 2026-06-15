@@ -21,8 +21,4 @@ public class MinecraftServerMixin {
         ZeroSeekMod.TPS_MONITOR.onTick((MinecraftServer) (Object) this);
     }
 
-    @Inject(method = "runServer", at = @At("HEAD"))
-    private void zeroseek$onRunServer(CallbackInfo ci) {
-        AdaptiveSimulation.initialize((MinecraftServer) (Object) this);
-    }
 }

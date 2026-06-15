@@ -6,8 +6,10 @@ import com.zeroseek.chunk.ChunkPrefetcher;
 import com.zeroseek.config.ZeroSeekConfig;
 import com.zeroseek.io.MadviseHelper;
 import com.zeroseek.io.RebaseWorker;
+import com.zeroseek.tps.AdaptiveSimulation;
 import com.zeroseek.tps.TPSMonitor;
 import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
@@ -82,6 +84,7 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
 
         if (CONFIG.tpsGovernorEnabled) {
             TPS_MONITOR = new TPSMonitor();
+            ServerLifecycleEvents.SERVER_STARTED.register(AdaptiveSimulation::initialize);
             LOGGER.info("TPS governor initialized");
         }
     }
