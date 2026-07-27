@@ -1,4 +1,4 @@
-cjp# ZeroSeek
+# ZeroSeek
 
 High-performance MMap + Async chunk loading engine for dedicated Minecraft servers.
 
