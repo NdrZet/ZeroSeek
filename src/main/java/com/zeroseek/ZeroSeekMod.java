@@ -77,9 +77,9 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
         }
 
         if (MadviseHelper.supported()) {
-            LOGGER.info("MMap madvise enabled");
+            LOGGER.info("MMap prefetch enabled");
         } else {
-            LOGGER.info("MMap madvise not available on this platform");
+            LOGGER.info("MMap prefetch not available on this platform");
         }
 
         if (CONFIG.tpsGovernorEnabled) {

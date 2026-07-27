@@ -28,7 +28,7 @@ public class MmapRegionIo {
             this.segment = channel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize, arena);
             if (MadviseHelper.supported()) {
                 MadviseHelper.willNeed(this.segment);
-                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap madvise WILLNEED for {}", path);
+                if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("MMap prefetch WILLNEED for {}", path);
             }
             this.arena = arena;
         } catch (Throwable t) {
@@ -92,7 +92,7 @@ public class MmapRegionIo {
     public void close() {
         if (MadviseHelper.supported() && segment != null) {
             MadviseHelper.dontNeed(this.segment);
-            if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("Mmap madvise DONTNEED for region");
+            if (ZeroSeekMod.CONFIG.debugMmap) ZeroSeekMod.LOGGER.debug("MMap prefetch release for region");
         }
         arena.close();
     }

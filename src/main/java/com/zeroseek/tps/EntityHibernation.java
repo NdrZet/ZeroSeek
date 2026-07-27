@@ -3,7 +3,6 @@ package com.zeroseek.tps;
 import com.zeroseek.ZeroSeekMod;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;

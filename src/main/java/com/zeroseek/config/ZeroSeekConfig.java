@@ -14,6 +14,7 @@ public class ZeroSeekConfig {
 
     public boolean mmapEnabled = true;
     public boolean deltaLayerEnabled = true;
+    // FUTURE: used when LRU eviction is implemented. Currently only logged/documented.
     public long maxMappedBytes = 2147483648L;
     public int rebaseIntervalSeconds = 300;
     public boolean debugMmap = false;
@@ -22,6 +23,7 @@ public class ZeroSeekConfig {
     public boolean asyncWorkersEnabled = true;
     public int chunkParserThreads = 8;
     public int chunkParserMaxQueue = 200;
+    // FUTURE: loader pool is created but not used yet (reserved for async MMap/generation pipeline).
     public int chunkLoaderThreads = 4;
     public int chunkLoaderMaxQueue = 50;
     public boolean chunkPrefetchEnabled = true;

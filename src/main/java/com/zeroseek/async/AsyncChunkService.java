@@ -2,7 +2,6 @@ package com.zeroseek.async;
 
 import com.zeroseek.ZeroSeekMod;
 import com.zeroseek.config.ZeroSeekConfig;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
@@ -15,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AsyncChunkService {
     private final HardenedWorkerPool parserPool;
+    // FUTURE: loaderPool is initialized but not used yet. Reserved for async MMap prefetch / generation pipeline.
     private final HardenedWorkerPool loaderPool;
     private final ConcurrentHashMap<ChunkPos, CompletableFuture<ChunkAccess>> loadingCache;
     private final ZeroSeekConfig config;
@@ -66,22 +66,6 @@ public class AsyncChunkService {
         if (future == null) return;
         loadingCache.put(pos, future);
         future.whenComplete((result, ex) -> loadingCache.remove(pos));
-    }
-
-    /**
-     * Prefetch a chunk by delegating to the vanilla scheduleChunkLoad via invoker.
-     * The resulting future is tracked for deduplication.
-     */
-    public void prefetchChunk(ServerLevel level, ChunkPos pos) {
-        if (!config.chunkPrefetchEnabled) return;
-        if (isCachedOrLoading(pos)) return;
-
-        // Fire-and-forget prefetch: vanilla I/O (async) + our parser pool (redirected via mixin)
-        // We cannot easily invoke private scheduleChunkLoad from here without reflection/invoker.
-        // Instead, the ChunkPrefetcher uses ChunkMapInvoker directly.
-        // This method is kept for future direct prefetch pipeline (MMap + parse in loaderPool).
-
-        ZeroSeekMod.LOGGER.debug("Prefetch requested for chunk {}", pos);
     }
 
     public HardenedWorkerPool getParserPool() {

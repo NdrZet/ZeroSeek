@@ -1,71 +1,69 @@
-# ZeroSeek
+cjp# ZeroSeek
 
-Высокопроизводительный MMap + Async движок загрузки чанков для выделенных серверов Minecraft.
+High-performance MMap + Async chunk loading engine for dedicated Minecraft servers.
 
-## Что такое ZeroSeek?
+## What is ZeroSeek?
 
-ZeroSeek заменяет стандартную синхронную систему загрузки чанков Minecraft на движок с отображением памяти (memory-mapped I/O) и асинхронной обработкой. Цель — стабильный TPS при любом онлайне и любом перемещении игроков, включая элитры и телепорты.
+ZeroSeek replaces Minecraft's standard synchronous chunk loading system with a memory-mapped I/O and asynchronous processing engine. The goal is stable TPS with any player count and any movement pattern, including elytra flight and teleports.
 
-## Текущий статус
+## Current Status
 
-Готово к использованию: MMap-чтение чанков, Delta Layer, Async Workers, CPU Affinity, TPS Governor.
+Ready for use: MMap chunk reads, Delta Layer, Async Workers, CPU Affinity, TPS Governor, MMap prefetch on Windows and Linux.
 
+## Features
 
-## Возможности
+- **MMap I/O Engine** — chunks are read directly from RAM via `MemorySegment` (Java 22 FFM API).
+- **Delta Layer** — writes are isolated from reads; modified chunks are stored as `.raw` files with background rebase to base `.mca`.
+- **Async Worker Pools** — chunk parsing (decompression + NBT + DataFixerUpper) is offloaded to dedicated fixed thread pools with bounded queues.
+- **CPU Affinity** — worker threads are bound to specific cores via FFM (`sched_setaffinity` / `SetThreadAffinityMask`).
+- **TPS Governor** — adaptive simulation distance, player ticket freeze/limit, entity hibernation, AI throttling, and movement packet throttling when TPS drops.
+- **Entity Hibernation** — entities in "old" chunks skip ticks during STRESS/CRITICAL TPS; blocks keep ticking.
+- **MMap Prefetch** — `posix_madvise` on Linux, `PrefetchVirtualMemory` on Windows.
 
-- **MMap I/O Engine** — чанки читаются напрямую из RAM через `MemorySegment` (Java 22 FFM API).
-- **Delta Layer** — запись изолирована от чтения; изменённые чанки хранятся в `.raw` файлах; фоновый rebase в base `.mca`.
-- **Async Worker Pools** — парсинг чанков (распаковка + NBT + DataFixerUpper) уходит в dedicated fixed thread pools с bounded queues.
-- **CPU Affinity** — жёсткая привязка рабочих потоков к конкретным ядрам через FFM (`sched_setaffinity` / `SetThreadAffinityMask`).
-- **TPS Governor** — адаптивное снижение simulation distance, заморозка player tickets, hibernation сущностей, throttling AI и пакетов движения при просадке TPS.
-- **Entity Hibernation** — сущности в «старых» чанках пропускают тики при STRESS/CRITICAL TPS; блоки продолжают тикать.
+## Planned / Not Implemented
 
-## В плане / не реализовано
-
-- `TeleportGate` — ленивые телепорты, ожидающие готовности чанков.
-- `SpeedCap` — ограничение скорости сущностей при CRITICAL TPS.
-- LRU eviction / контроль `maxMappedBytes`.
-- Windows `PrefetchVirtualMemory` fallback для madvise.
+- `TeleportGate` — lazy teleports that wait for destination chunks to be ready.
+- `SpeedCap` — entity speed limiting during CRITICAL TPS.
+- LRU eviction / `maxMappedBytes` enforcement.
 - Async generation wrapper.
-- Auto-detect C2ME и автоотключение mmap.
+- Auto-detect C2ME and disable mmap automatically.
 
-## Целевая платформа
+## Target Platform
 
 - Minecraft **1.21.11**
 - Fabric Loader **0.18.2+**
-- Java **22** (для FFM / MemorySegment)
-- Только серверная сторона
+- Java **22** (required for FFM / MemorySegment)
+- Server-side only
 
-## Сборка
+## Build
 
 ```bash
 ./gradlew build
 ```
 
-Результат: `build/libs/zeroseek.jar`
+Output: `build/libs/zeroseek-1.0.0.jar`
 
-## Установка
+## Installation
 
-1. Скопируйте `zeroseek.jar` в папку `mods/` вашего сервера.
-2. При первом запуске создастся `config/zeroseek.json` — отредактируйте при необходимости.
-3. Запустите сервер.
+1. Copy `zeroseek-1.0.0.jar` into your server's `mods/` folder.
+2. On first launch, `config/zeroseek.json` will be created — edit if needed.
+3. Start the server.
 
-## Конфигурация
+## Configuration
 
-`config/zeroseek.json` позволяет настроить:
+`config/zeroseek.json` allows tuning:
 
-- `mmapEnabled` / `deltaLayerEnabled` — включение MMap и Delta Layer.
-- `maxMappedBytes` — бюджет памяти MMap (LRU eviction пока не реализован).
-- `rebaseIntervalSeconds` — интервал фонового rebase.
-- `chunkParserThreads` / `chunkLoaderThreads` — размеры пулов.
-- `cpuAffinityEnabled` / `cpuAffinityCores` — привязка к ядрам.
+- `mmapEnabled` / `deltaLayerEnabled` — enable MMap and Delta Layer.
+- `maxMappedBytes` — MMap memory budget (LRU eviction is not yet implemented).
+- `rebaseIntervalSeconds` — background rebase interval.
+- `chunkParserThreads` / `chunkLoaderThreads` — pool sizes.
+- `cpuAffinityEnabled` / `cpuAffinityCores` — core binding.
 - `tpsGovernorEnabled`, `simDistNormal/Stress/Critical`, `tpsStress/CriticalThreshold` — TPS governor.
-- `entityHibernationEnabled`, `hibernateMinAgeMs`, `hibernateStressAgeMs` — гибернация сущностей.
+- `entityHibernationEnabled`, `hibernateMinAgeMs`, `hibernateStressAgeMs` — entity hibernation.
 
-## Совместимость
+## Compatibility
 
-- **Проверено на Windows:** affinity, mmap, delta, rebase, TPS governor работают.
-- **Linux:** affinity + madvise реализованы, но не тестировались.
-- **Потенциально совместимы:** Terralith, Biomes O' Plenty, Lithium, Starlight, Voxy, Xaero's World Map, Pl3xMap.
-- **Конфликт:** C2ME — пока нет auto-detect, при использовании с C2ME рекомендуется отключить `mmapEnabled`.
-
+- **Tested on Windows:** affinity, mmap, delta, rebase, TPS governor, and PrefetchVirtualMemory work.
+- **Linux:** affinity + madvise are implemented but not battle-tested.
+- **Likely compatible:** Terralith, Biomes O' Plenty, Lithium, Starlight, Voxy, Xaero's World Map, Pl3xMap.
+- **Conflict:** C2ME — auto-detect is not implemented yet. If you use C2ME, set `mmapEnabled` to `false`.
