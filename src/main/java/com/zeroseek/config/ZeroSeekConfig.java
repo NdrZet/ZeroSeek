@@ -14,7 +14,7 @@ public class ZeroSeekConfig {
 
     public boolean mmapEnabled = true;
     public boolean deltaLayerEnabled = true;
-    // FUTURE: used when LRU eviction is implemented. Currently only logged/documented.
+    // LRU eviction cap for memory-mapped region files. Zero or negative disables eviction.
     public long maxMappedBytes = 2147483648L;
     public int rebaseIntervalSeconds = 300;
     public boolean debugMmap = false;

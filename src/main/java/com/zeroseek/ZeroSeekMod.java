@@ -5,6 +5,7 @@ import com.zeroseek.async.affinity.PlatformAffinity;
 import com.zeroseek.chunk.ChunkPrefetcher;
 import com.zeroseek.config.ZeroSeekConfig;
 import com.zeroseek.io.MadviseHelper;
+import com.zeroseek.io.MmapLruCache;
 import com.zeroseek.io.RebaseWorker;
 import com.zeroseek.tps.AdaptiveSimulation;
 import com.zeroseek.tps.TPSMonitor;
@@ -32,7 +33,7 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
     public void onInitializeServer() {
         CONFIG = ZeroSeekConfig.load();
         LOGGER.info("========================================");
-        LOGGER.info("  ZeroSeek v1.0.0");
+        LOGGER.info("  ZeroSeek v1.1.0");
         LOGGER.info("  MMap Chunk Engine");
         LOGGER.info("========================================");
         LOGGER.info("MMap enabled: {}", CONFIG.mmapEnabled);
@@ -98,5 +99,6 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
         if (ASYNC_SERVICE != null) {
             ASYNC_SERVICE.shutdown();
         }
+        MmapLruCache.closeAll();
     }
 }

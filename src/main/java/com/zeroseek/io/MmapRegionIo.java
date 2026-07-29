@@ -89,6 +89,10 @@ public class MmapRegionIo {
         }
     }
 
+    public long getFileSize() {
+        return fileSize;
+    }
+
     public void close() {
         if (MadviseHelper.supported() && segment != null) {
             MadviseHelper.dontNeed(this.segment);

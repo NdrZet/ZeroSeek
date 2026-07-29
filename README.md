@@ -19,12 +19,12 @@ Ready for use: MMap chunk reads, Delta Layer, Async Workers, CPU Affinity, TPS G
 - **TPS Governor** — adaptive simulation distance, player ticket freeze/limit, entity hibernation, AI throttling, and movement packet throttling when TPS drops.
 - **Entity Hibernation** — entities in "old" chunks skip ticks during STRESS/CRITICAL TPS; blocks keep ticking.
 - **MMap Prefetch** — `posix_madvise` on Linux, `PrefetchVirtualMemory` on Windows.
+- **MMap LRU Cache** — total mapped bytes are capped by `maxMappedBytes`; least-recently-used region files are unmapped automatically.
 
 ## Planned / Not Implemented
 
 - `TeleportGate` — lazy teleports that wait for destination chunks to be ready.
 - `SpeedCap` — entity speed limiting during CRITICAL TPS.
-- LRU eviction / `maxMappedBytes` enforcement.
 - Async generation wrapper.
 - Auto-detect C2ME and disable mmap automatically.
 
@@ -41,11 +41,11 @@ Ready for use: MMap chunk reads, Delta Layer, Async Workers, CPU Affinity, TPS G
 ./gradlew build
 ```
 
-Output: `build/libs/zeroseek-1.0.0.jar`
+Output: `build/libs/zeroseek-1.1.0.jar`
 
 ## Installation
 
-1. Copy `zeroseek-1.0.0.jar` into your server's `mods/` folder.
+1. Copy `zeroseek-1.1.0.jar` into your server's `mods/` folder.
 2. On first launch, `config/zeroseek.json` will be created — edit if needed.
 3. Start the server.
 

@@ -60,6 +60,9 @@ public class RebaseWorker implements Runnable {
                 Files.createDirectories(baseFilePath.getParent());
             }
 
+            // Ensure no stale MMap view of the base .mca is used while we rewrite it.
+            MmapLruCache.invalidate(baseFilePath);
+
             RegionFile baseFile = new RegionFile(info, baseFilePath, baseFilePath.getParent(), false);
             try {
                 RebaseState.setRebasing(true);
