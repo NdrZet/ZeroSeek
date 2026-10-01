@@ -133,7 +133,17 @@ public final class MmapLruCache {
     public static void invalidate(Path path) {
         Entry entry = CACHE.get(path);
         if (entry == null) {
-            return;
+            Path abs = path.toAbsolutePath().normalize();
+            for (java.util.Map.Entry<Path, Entry> e : CACHE.entrySet()) {
+                if (e.getKey().toAbsolutePath().normalize().equals(abs)) {
+                    entry = e.getValue();
+                    path = e.getKey();
+                    break;
+                }
+            }
+            if (entry == null) {
+                return;
+            }
         }
 
         synchronized (entry) {

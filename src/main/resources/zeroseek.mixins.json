@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.zeroseek.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_22",
   "mixins": [
     "RegionFileMixin",
     "RegionFileInvoker",
@@ -10,10 +10,8 @@
     "ChunkMapInvoker",
     "MinecraftServerMixin",
     "ServerChunkCacheMixin",
-    "DistanceManagerMixin",
     "ServerLevelMixin",
-    "ServerGamePacketListenerImplMixin",
-    "LivingEntityMixin"
+    "MobMixin"
   ],
   "injectors": {
     "defaultRequire": 1

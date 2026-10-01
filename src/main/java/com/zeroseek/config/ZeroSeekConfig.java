@@ -48,8 +48,6 @@ public class ZeroSeekConfig {
     public boolean entityHibernationEnabled = true;
     public long hibernateMinAgeMs = 5000;
     public long hibernateStressAgeMs = 30000;
-    public double stressDropMoveChance = 0.25;
-    public double criticalDropMoveChance = 0.75;
     public double stressSkipAiChance = 0.25;
     public double criticalSkipAiChance = 0.75;
 

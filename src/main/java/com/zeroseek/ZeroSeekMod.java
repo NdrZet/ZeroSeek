@@ -33,7 +33,7 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
     public void onInitializeServer() {
         CONFIG = ZeroSeekConfig.load();
         LOGGER.info("========================================");
-        LOGGER.info("  ZeroSeek v1.1.0");
+        LOGGER.info("  ZeroSeek v1.2.0");
         LOGGER.info("  MMap Chunk Engine");
         LOGGER.info("========================================");
         LOGGER.info("MMap enabled: {}", CONFIG.mmapEnabled);

@@ -9,8 +9,12 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,6 +86,34 @@ public class ExternalDeltaManager {
     }
 
     public static List<Path> getAllDeltaFiles() throws IOException {
+        Path worldDir = Path.of("world");
+        if (Files.exists(worldDir)) {
+            List<Path> deltaFiles = new ArrayList<>();
+            Files.walkFileTree(worldDir, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                    String name = dir.getFileName() != null ? dir.getFileName().toString() : "";
+                    // Skip vanilla storage trees to avoid scanning tens of thousands of files
+                    if ("region".equals(name) || "poi".equals(name) || "entities".equals(name)
+                            || "playerdata".equals(name) || "stats".equals(name) || "advancements".equals(name)
+                            || "datapacks".equals(name)) {
+                        return FileVisitResult.SKIP_SUBTREE;
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    String pathStr = file.toString().replace('\\', '/');
+                    if (pathStr.endsWith(".raw") && pathStr.contains("/region_delta/")) {
+                        deltaFiles.add(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return deltaFiles;
+        }
+
         if (!Files.exists(BASE_DELTA_DIR)) return List.of();
         try (Stream<Path> walk = Files.walk(BASE_DELTA_DIR)) {
             return walk.filter(p -> p.toString().endsWith(".raw")).collect(Collectors.toList());
