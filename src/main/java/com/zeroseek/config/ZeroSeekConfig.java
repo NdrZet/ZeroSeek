@@ -22,16 +22,22 @@ public class ZeroSeekConfig {
     // Async Workers (Phase 3)
     public boolean asyncWorkersEnabled = true;
     public int chunkParserThreads = 8;
-    public int chunkParserMaxQueue = 200;
+    public int chunkParserMaxQueue = 4096;
     // FUTURE: loader pool is created but not used yet (reserved for async MMap/generation pipeline).
     public int chunkLoaderThreads = 4;
-    public int chunkLoaderMaxQueue = 50;
+    public int chunkLoaderMaxQueue = 2048;
     public boolean chunkPrefetchEnabled = true;
     public int chunkPrefetchRadius = 1;
     public int chunkPrefetchTicksAhead = 40;
     public int chunkPrefetchTickInterval = 5;
     public double chunkPrefetchSpeedThreshold = 0.15;
     public int chunkPrefetchMaxPerTick = 16;
+
+    // Concurrent WorldGen (Phases 3 & 4)
+    public boolean concurrentWorldGenEnabled = true;
+    public int chunkGeneratorThreads = 8;
+    public int chunkGeneratorMaxQueue = 4096;
+    public int[] worldGenAffinityCores = {2, 3, 4, 5, 6, 7};
 
     // CPU Affinity (Phase 4)
     public boolean cpuAffinityEnabled = true;

@@ -46,15 +46,14 @@ public class HardenedWorkerPool {
         return (r, pool) -> {
             if (!pool.isShutdown()) {
                 rejectedTasks.increment();
-                pool.getQueue().poll();
                 try {
-                    pool.execute(r);
-                } catch (Exception e) {
-                    ZeroSeekMod.LOGGER.warn("{} failed to re-submit task after discarding oldest", name, e);
+                    r.run();
+                } catch (Throwable t) {
+                    ZeroSeekMod.LOGGER.error("{} failed while executing caller-runs fallback task", name, t);
                 }
-                if (pool.getCompletedTaskCount() % 1000L == 0L) {
+                if (rejectedTasks.sum() % 100L == 1L) {
                     ZeroSeekMod.LOGGER.warn(
-                            "{} queue overflow (size={}). Discarded oldest task.",
+                            "{} queue overflow (size={}). Executing task on caller thread for backpressure.",
                             name, pool.getQueue().size()
                     );
                 }

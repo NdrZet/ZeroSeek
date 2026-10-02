@@ -9,6 +9,7 @@ import com.zeroseek.io.MmapLruCache;
 import com.zeroseek.io.RebaseWorker;
 import com.zeroseek.tps.AdaptiveSimulation;
 import com.zeroseek.tps.TPSMonitor;
+import com.zeroseek.worldgen.lock.SpatialLockManager;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -26,6 +27,7 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
 
     public static ZeroSeekConfig CONFIG;
     public static AsyncChunkService ASYNC_SERVICE;
+    public static SpatialLockManager SPATIAL_LOCK_MANAGER;
     public static TPSMonitor TPS_MONITOR;
     private static ScheduledExecutorService rebaseScheduler;
 
@@ -33,7 +35,7 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
     public void onInitializeServer() {
         CONFIG = ZeroSeekConfig.load();
         LOGGER.info("========================================");
-        LOGGER.info("  ZeroSeek v1.2.0");
+        LOGGER.info("  ZeroSeek v1.3.0");
         LOGGER.info("  MMap Chunk Engine");
         LOGGER.info("========================================");
         LOGGER.info("MMap enabled: {}", CONFIG.mmapEnabled);
@@ -69,6 +71,12 @@ public class ZeroSeekMod implements DedicatedServerModInitializer {
 
             LOGGER.info("Async workers started (parser threads={}, loader threads={})",
                     CONFIG.chunkParserThreads, CONFIG.chunkLoaderThreads);
+        }
+
+        if (CONFIG.concurrentWorldGenEnabled) {
+            java.util.concurrent.Executor lockExecutor = (ASYNC_SERVICE != null) ? ASYNC_SERVICE.getGeneratorPool().getExecutor() : java.util.concurrent.ForkJoinPool.commonPool();
+            SPATIAL_LOCK_MANAGER = new SpatialLockManager(lockExecutor);
+            LOGGER.info("Concurrent WorldGen & SpatialLockManager initialized (generator threads={})", CONFIG.chunkGeneratorThreads);
         }
 
         if (CONFIG.cpuAffinityEnabled) {

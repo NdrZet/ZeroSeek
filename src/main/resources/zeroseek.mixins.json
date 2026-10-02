@@ -11,7 +11,14 @@
     "MinecraftServerMixin",
     "ServerChunkCacheMixin",
     "ServerLevelMixin",
-    "MobMixin"
+    "MobMixin",
+    "worldgen.StructureStartMixin",
+    "worldgen.StrongholdPieceWeightMixin",
+    "worldgen.NetherFortressPieceWeightMixin",
+    "worldgen.ChunkMapMixin",
+    "worldgen.ChunkStepMixin",
+    "worldgen.NoiseBasedChunkGeneratorMixin",
+    "worldgen.TheEndBiomeSourceMixin"
   ],
   "injectors": {
     "defaultRequire": 1

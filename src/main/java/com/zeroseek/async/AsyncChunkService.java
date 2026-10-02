@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AsyncChunkService {
     private final HardenedWorkerPool parserPool;
-    // FUTURE: loaderPool is initialized but not used yet. Reserved for async MMap prefetch / generation pipeline.
     private final HardenedWorkerPool loaderPool;
+    private final HardenedWorkerPool generatorPool;
     private final ConcurrentHashMap<ChunkPos, CompletableFuture<ChunkAccess>> loadingCache;
     private final ZeroSeekConfig config;
 
@@ -33,12 +33,19 @@ public class AsyncChunkService {
                 config.chunkLoaderMaxQueue,
                 config.cpuAffinityEnabled ? config.cpuAffinityCores : null
         );
+        this.generatorPool = new HardenedWorkerPool(
+                "zeroseek-generator",
+                config.chunkGeneratorThreads,
+                config.chunkGeneratorMaxQueue,
+                config.cpuAffinityEnabled ? (config.worldGenAffinityCores != null ? config.worldGenAffinityCores : config.cpuAffinityCores) : null
+        );
         this.loadingCache = new ConcurrentHashMap<>();
 
         ZeroSeekMod.LOGGER.info(
-                "AsyncChunkService initialized: parser={} threads/queue={}, loader={} threads/queue={}",
+                "AsyncChunkService initialized: parser={} threads/queue={}, loader={} threads/queue={}, generator={} threads/queue={}",
                 config.chunkParserThreads, config.chunkParserMaxQueue,
-                config.chunkLoaderThreads, config.chunkLoaderMaxQueue
+                config.chunkLoaderThreads, config.chunkLoaderMaxQueue,
+                config.chunkGeneratorThreads, config.chunkGeneratorMaxQueue
         );
     }
 
@@ -76,6 +83,10 @@ public class AsyncChunkService {
         return loaderPool;
     }
 
+    public HardenedWorkerPool getGeneratorPool() {
+        return generatorPool;
+    }
+
     public int getCacheSize() {
         return loadingCache.size();
     }
@@ -83,6 +94,7 @@ public class AsyncChunkService {
     public void shutdown() {
         parserPool.shutdown();
         loaderPool.shutdown();
+        generatorPool.shutdown();
         ZeroSeekMod.LOGGER.info("AsyncChunkService shut down");
     }
 }

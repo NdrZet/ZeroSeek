@@ -14,6 +14,7 @@ public class TPSMonitor {
         long avgNanos = server.getAverageTickTimeNanos();
         double tps = avgNanos > 0 ? Math.min(20.0, 1_000_000_000.0 / avgNanos) : 20.0;
         state = classify(tps);
+        setState(state);
         TickAggregator.maybeLog(tps, state);
     }
 
@@ -29,5 +30,15 @@ public class TPSMonitor {
 
     public TPSState getState() {
         return state;
+    }
+
+    public void setState(TPSState newState) {
+        TPSState oldState = this.state;
+        this.state = newState;
+        if (oldState == TPSState.CRITICAL && newState != TPSState.CRITICAL) {
+            if (ZeroSeekMod.SPATIAL_LOCK_MANAGER != null) {
+                ZeroSeekMod.SPATIAL_LOCK_MANAGER.resetGovernorPermits();
+            }
+        }
     }
 }
