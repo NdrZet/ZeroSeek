@@ -12,6 +12,16 @@ Ready for use: MMap chunk reads, Delta Layer with Batch Rebase, Async Workers, C
 
 ## Features
 
+- **Modular Multi-Project Architecture** — ZeroSeek is built as an extensible multi-module engine using Fabric's Jar-in-Jar system:
+  - `zeroseek-base`: core MMap chunk I/O, async worker pools, CPU affinity, and Safe TPS governor.
+  - `zeroseek-worldgen`: 2D spatial locking, concurrent world generation pipeline, and End biome caching.
+  - `zeroseek-cuda`: hardware-accelerated world generation using NVIDIA CUDA with Java 22 FFM API, NVRTC runtime compilation, and Mixed Precision (FP64 Base / FP32 Local).
+  - Submodules can be included or excluded at build time, and are packaged into a single `zeroseek-1.4.0.jar` for server administrators.
+- **NVIDIA CUDA GPU Acceleration (`zeroseek-cuda`)**:
+  - Direct Driver API binding (`nvcuda.dll` / `libcuda.so`) and NVRTC runtime compiler (`nvrtc64_*.dll`) via Java 22 FFM API with zero external C++ daemons or JNI dependencies.
+  - **Mixed Precision Engine**: Global coordinates and offsets remain in high-precision `double` (FP64) to prevent precision drift at high distances, while local octave evaluation executes in pure `float` (FP32), saturating modern RTX CUDA cores (15.1+ TFLOPS on RTX 4060).
+  - **Asynchronous Chunk Batch Dispatcher**: Batches multi-chunk noise density queries (`CudaChunkBatchDispatcher`) to eliminate kernel launch and DMA overhead.
+  - **Zero-Friction Fallback**: Transparently falls back to CPU world generation if CUDA is unavailable or disabled.
 - **Concurrent World Generation Engine** — multithreaded worldgen pipeline under Minecraft 1.21.11 (Official Mojang Mappings):
   - **2D Spatial Locking** — fine-grained Chebyshev grid ($3 \times 3$ for features with write radius 1) using non-blocking `CompletableFuture` dependency chaining. Strict canonical coordinate sorting (`Arrays.sort(positions)`) mathematically eliminates cyclic wait-for deadlocks.
   - **Dedicated Generator Worker Pool** — world generation task dispatching in `ChunkMap` is redirected to an isolated fixed thread pool with hardware CPU Affinity bound to cores 2–7 via Java 22 FFM API.
@@ -50,11 +60,11 @@ Ready for use: MMap chunk reads, Delta Layer with Batch Rebase, Async Workers, C
 ./gradlew build
 ```
 
-Output: `build/libs/zeroseek-1.3.0.jar`
+Output: `build/libs/zeroseek-1.4.0.jar`
 
 ## Installation
 
-1. Copy `zeroseek-1.3.0.jar` into your server's `mods/` folder.
+1. Copy `zeroseek-1.4.0.jar` into your server's `mods/` folder.
 2. On first launch, `config/zeroseek.json` will be created — edit if needed.
 3. Start the server.
 
@@ -65,6 +75,10 @@ Output: `build/libs/zeroseek-1.3.0.jar`
 - `concurrentWorldGenEnabled` — toggle concurrent world generation engine (defaults to `true`).
 - `chunkGeneratorThreads` — dedicated worker pool size for world generation (defaults to `8`).
 - `worldGenAffinityCores` — CPU cores assigned to world generation workers (defaults to `[2, 3, 4, 5, 6, 7]`).
+- `cudaAccelerationEnabled` — enable NVIDIA CUDA GPU acceleration (defaults to `true`).
+- `cudaBatchSize` — batch size of chunks submitted to GPU per kernel launch (defaults to `16`).
+- `cudaMaxQueue` — maximum capacity of the pending chunk queue (defaults to `1024`).
+- `nvrtcLibraryPath` — custom path to `nvrtc64_*.dll` if not auto-detected (optional).
 - `mmapEnabled` / `deltaLayerEnabled` — enable MMap and Delta Layer.
 - `maxMappedBytes` — MMap memory budget.
 - `rebaseIntervalSeconds` — background rebase interval.

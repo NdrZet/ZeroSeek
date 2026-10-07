@@ -1,0 +1,8 @@
+base {
+	archivesName = "zeroseek-light"
+}
+
+dependencies {
+	api project(path: ":zeroseek-base", configuration: "namedElements")
+	api project(path: ":zeroseek-worldgen", configuration: "namedElements")
+}

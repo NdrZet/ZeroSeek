@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "zeroseek-light",
+  "version": "${version}",
+  "name": "ZeroSeek Light",
+  "description": "Native bitboard lighting engine with zero-allocation SWMR arrays for Minecraft 1.21.11.",
+  "authors": [
+    "SPA Team"
+  ],
+  "contact": {
+    "sources": "https://github.com/spa/zeroseek"
+  },
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.zeroseek.light.ZeroSeekLightMod"
+    ]
+  },
+  "mixins": [
+    "zeroseek-light.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "1.21.11",
+    "java": ">=22",
+    "zeroseek-base": "*",
+    "zeroseek-worldgen": "*"
+  }
+}

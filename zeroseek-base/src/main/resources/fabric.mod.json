@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "zeroseek",
+  "id": "zeroseek-base",
   "version": "${version}",
-  "name": "ZeroSeek",
-  "description": "High-performance MMap chunk I/O and concurrent world generation engine for Minecraft 1.21.11.",
+  "name": "ZeroSeek Base",
+  "description": "ZeroSeek core MMap chunk I/O engine, async worker pools, and TPS governor.",
   "authors": [
     "SPA Team"
   ],
@@ -12,6 +12,15 @@
   },
   "license": "MIT",
   "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.zeroseek.ZeroSeekMod"
+    ]
+  },
+  "accessWidener": "zeroseek.accesswidener",
+  "mixins": [
+    "zeroseek-base.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.16.0",
     "minecraft": "1.21.11",

@@ -1,0 +1,33 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zeroseek.mixin.worldgen",
+  "compatibilityLevel": "JAVA_22",
+  "mixins": [
+    "StructureStartMixin",
+    "StrongholdPieceWeightMixin",
+    "NetherFortressPieceWeightMixin",
+    "ChunkMapMixin",
+    "ChunkStepMixin",
+    "NoiseBasedChunkGeneratorMixin",
+    "TheEndBiomeSourceMixin",
+    "biome.MultiNoiseBiomeSourceMixin",
+    "biome.ClimateSamplerMixin",
+    "biome.LevelChunkSectionMixin",
+    "biome.ChunkAccessBiomeMixin",
+    "biome.LevelChunkSectionAccessor",
+    "light.ChunkSkyLightSourcesMixin",
+    "palette.PalettedContainerMixin",
+    "palette.SimpleBitStorageMixin",
+    "palette.StrategyAccessor",
+    "palette.StrategyMixin",
+    "palette.PalettedContainerAccessor",
+    "math.BlockPosMixin",
+    "math.DirectionMixin",
+    "math.MthMixin",
+    "math.NoiseInterpolatorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

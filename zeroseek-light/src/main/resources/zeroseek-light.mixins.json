@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zeroseek.light.mixin",
+  "compatibilityLevel": "JAVA_22",
+  "mixins": [
+    "BlockStateBaseMixin",
+    "ChunkAccessMixin",
+    "EmptyLevelChunkMixin",
+    "ImposterProtoChunkMixin",
+    "LevelChunkMixin",
+    "ProtoChunkMixin",
+    "LevelLightEngineMixin",
+    "ThreadedLevelLightEngineMixin",
+    "SerializableChunkDataMixin",
+    "LevelMixin",
+    "ServerWorldMixin",
+    "WorldGenRegionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -10,3 +10,8 @@ pluginManagement {
 }
 
 rootProject.name = 'zeroseek'
+
+include 'zeroseek-base'
+include 'zeroseek-worldgen'
+include 'zeroseek-cuda'
+include 'zeroseek-light'

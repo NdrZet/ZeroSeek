@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "zeroseek-worldgen",
+  "version": "${version}",
+  "name": "ZeroSeek WorldGen",
+  "description": "ZeroSeek concurrent world generation pipeline with 2D spatial locking and CPU affinity.",
+  "authors": [
+    "SPA Team"
+  ],
+  "contact": {
+    "sources": "https://github.com/spa/zeroseek"
+  },
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.zeroseek.worldgen.ZeroSeekWorldGenMod"
+    ]
+  },
+  "mixins": [
+    "zeroseek-worldgen.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "1.21.11",
+    "java": ">=22",
+    "zeroseek-base": "*"
+  }
+}

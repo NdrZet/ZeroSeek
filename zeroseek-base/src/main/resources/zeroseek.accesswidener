@@ -1,0 +1,75 @@
+accessWidener v2 named
+
+accessible method net/minecraft/world/level/chunk/storage/RegionFile write (Lnet/minecraft/world/level/ChunkPos;Ljava/nio/ByteBuffer;)V
+accessible class net/minecraft/world/level/levelgen/structure/structures/StrongholdPieces$PieceWeight
+accessible class net/minecraft/world/level/levelgen/structure/structures/NetherFortressPieces$PieceWeight
+
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Constant
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$TwoArgumentSimpleFunction
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$TwoArgumentSimpleFunction$Type
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Clamp
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Mapped
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Mapped$Type
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$RangeChoice
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$YClampedGradient
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Marker
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Marker$Type
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Noise
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$ShiftedNoise
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Shift
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$ShiftA
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$ShiftB
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$ShiftNoise
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$HolderHolder
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDensityFunction
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$Spline
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$MulOrAdd
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$MulOrAdd$Type
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$BlendAlpha
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$BlendOffset
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$BlendDensity
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$FindTopSurface
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$WeirdScaledSampler
+
+accessible class net/minecraft/world/level/chunk/PalettedContainer$Data
+accessible field net/minecraft/util/Mth SIN [F
+accessible field net/minecraft/world/level/levelgen/NoiseChunk preliminarySurfaceLevel Lnet/minecraft/world/level/levelgen/DensityFunction;
+accessible field net/minecraft/world/level/levelgen/NoiseChunk preliminarySurfaceLevelCache Lit/unimi/dsi/fastutil/longs/Long2IntMap;
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$NoiseChunkDensityFunction
+accessible method net/minecraft/world/level/levelgen/NoiseChunk$NoiseChunkDensityFunction wrapped ()Lnet/minecraft/world/level/levelgen/DensityFunction;
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$CacheOnce
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$Cache2D
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$CacheAllInCell
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$FlatCache
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$BlendAlpha
+accessible class net/minecraft/world/level/levelgen/NoiseChunk$BlendOffset
+accessible class net/minecraft/world/level/levelgen/synth/BlendedNoise
+accessible field net/minecraft/world/level/levelgen/synth/BlendedNoise xzScale D
+accessible field net/minecraft/world/level/levelgen/synth/BlendedNoise yScale D
+
+accessible field net/minecraft/world/level/levelgen/synth/NormalNoise valueFactor D
+accessible field net/minecraft/world/level/levelgen/synth/NormalNoise first Lnet/minecraft/world/level/levelgen/synth/PerlinNoise;
+accessible field net/minecraft/world/level/levelgen/synth/NormalNoise second Lnet/minecraft/world/level/levelgen/synth/PerlinNoise;
+
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise noiseLevels [Lnet/minecraft/world/level/levelgen/synth/ImprovedNoise;
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise amplitudes Lit/unimi/dsi/fastutil/doubles/DoubleList;
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise lowestFreqInputFactor D
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise lowestFreqValueFactor D
+
+accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise p [B
+accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise xo D
+accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise yo D
+accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise zo D
+
+accessible class net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase$Cache
+accessible field net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;
+accessible method net/minecraft/world/level/chunk/PalettedContainer get (I)Ljava/lang/Object;
+accessible field net/minecraft/server/level/ChunkMap level Lnet/minecraft/server/level/ServerLevel;
+accessible field net/minecraft/server/level/ChunkMap mainThreadExecutor Lnet/minecraft/util/thread/BlockableEventLoop;
+accessible method net/minecraft/server/level/ChunkMap getUpdatingChunkIfPresent (J)Lnet/minecraft/server/level/ChunkHolder;
+accessible method net/minecraft/server/level/ChunkMap getVisibleChunkIfPresent (J)Lnet/minecraft/server/level/ChunkHolder;
+accessible method net/minecraft/server/level/ChunkMap getChunkQueueLevel (J)Ljava/util/function/IntSupplier;
+mutable field net/minecraft/world/level/lighting/LevelLightEngine blockEngine Lnet/minecraft/world/level/lighting/LightEngine;
+mutable field net/minecraft/world/level/lighting/LevelLightEngine skyEngine Lnet/minecraft/world/level/lighting/LightEngine;
+accessible class net/minecraft/server/level/ThreadedLevelLightEngine$TaskType
+

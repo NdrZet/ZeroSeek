@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.zeroseek.cuda.mixin",
+  "compatibilityLevel": "JAVA_22",
+  "mixins": [
+    "worldgen.NoiseChunkMixin",
+    "worldgen.CudaNoiseBasedChunkGeneratorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

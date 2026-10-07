@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "zeroseek-cuda",
+  "version": "${version}",
+  "name": "ZeroSeek CUDA",
+  "description": "ZeroSeek mixed-precision NVIDIA CUDA GPU acceleration engine for world generation.",
+  "authors": [
+    "SPA Team"
+  ],
+  "contact": {
+    "sources": "https://github.com/spa/zeroseek"
+  },
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.zeroseek.cuda.ZeroSeekCudaMod"
+    ]
+  },
+  "mixins": [
+    "zeroseek-cuda.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "1.21.11",
+    "java": ">=22",
+    "zeroseek-base": "*",
+    "zeroseek-worldgen": "*"
+  }
+}
